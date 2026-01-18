@@ -197,6 +197,7 @@ const app = {
         this.initMinigame(minigame);
     },
 
+
     initMinigame(minigame) {
         // Clear any existing timers from previous games
         if (this.contraptionTimer) {
@@ -230,7 +231,7 @@ const app = {
             this.dom.gameContent.classList.add('overflow-hidden'); // No native scroll, full screen
             this.renderScavengerGame();
         } else if (minigame === 'doodle') {
-            this.dom.gameContent.className = 'flex-1 relative flex flex-col items-center p-4 overflow-hidden'; // No scroll for canvas
+            this.dom.gameContent.className = 'flex-1 relative flex flex-col items-center p-4 pt-20 overflow-hidden'; // Added pt-20 to clear header
              this.dom.gameFooter.className = 'w-full z-10 bg-surface-dark border-t border-white/5 relative p-4';
             this.renderDoodleGame();
         }
@@ -801,36 +802,36 @@ const app = {
         `;
 
         this.dom.gameFooter.innerHTML = `
-            <div class="flex flex-col gap-3 w-full">
-                <div class="flex items-center justify-between gap-3">
-                    <div id="color-palette" class="flex gap-2 flex-wrap">
-                        <button data-color="#f425af" class="size-8 rounded-full bg-[#f425af] ring-2 ring-white ring-offset-2 ring-offset-background-dark color-btn"></button>
-                        <button data-color="#00d4ff" class="size-8 rounded-full bg-[#00d4ff] color-btn"></button>
-                        <button data-color="#00ff88" class="size-8 rounded-full bg-[#00ff88] color-btn"></button>
-                        <button data-color="#ffdd00" class="size-8 rounded-full bg-[#ffdd00] color-btn"></button>
-                        <button data-color="#ff6b35" class="size-8 rounded-full bg-[#ff6b35] color-btn"></button>
-                        <button data-color="#000000" class="size-8 rounded-full bg-black color-btn"></button>
-                        <button data-color="#ffffff" class="size-8 rounded-full bg-white border border-white/20 color-btn"></button>
+            <div class="flex flex-col gap-2 w-full">
+                <div class="flex items-center justify-between gap-2">
+                    <div id="color-palette" class="flex gap-1 flex-wrap justify-center">
+                        <button data-color="#f425af" class="size-6 rounded-full bg-[#f425af] ring-2 ring-white ring-offset-2 ring-offset-background-dark color-btn"></button>
+                        <button data-color="#00d4ff" class="size-6 rounded-full bg-[#00d4ff] color-btn"></button>
+                        <button data-color="#00ff88" class="size-6 rounded-full bg-[#00ff88] color-btn"></button>
+                        <button data-color="#ffdd00" class="size-6 rounded-full bg-[#ffdd00] color-btn"></button>
+                        <button data-color="#ff6b35" class="size-6 rounded-full bg-[#ff6b35] color-btn"></button>
+                        <button data-color="#000000" class="size-6 rounded-full bg-black color-btn"></button>
+                        <button data-color="#ffffff" class="size-6 rounded-full bg-white border border-white/20 color-btn"></button>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="btn-eraser" class="size-10 rounded-xl bg-surface-accent border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
-                            <span class="material-symbols-outlined text-white/60">ink_eraser</span>
+                    <div class="flex gap-1">
+                        <button id="btn-eraser" class="size-8 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
+                            <span class="material-symbols-outlined text-white/60 text-lg">ink_eraser</span>
                         </button>
-                        <button id="btn-clear" class="size-10 rounded-xl bg-surface-accent border border-white/10 flex items-center justify-center hover:bg-red-500/20 transition-all">
-                            <span class="material-symbols-outlined text-red-400">delete</span>
+                        <button id="btn-clear" class="size-8 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center hover:bg-red-500/20 transition-all">
+                            <span class="material-symbols-outlined text-red-400 text-lg">delete</span>
                         </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs text-white/40">Grosor:</span>
+                <div class="flex items-center gap-2 justify-center">
+                    <span class="text-[10px] text-white/40">Grosor:</span>
                     <div id="brush-sizes" class="flex gap-2">
-                        <button data-size="4" class="size-8 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center brush-btn"><div class="size-2 rounded-full bg-white"></div></button>
-                        <button data-size="8" class="size-8 rounded-lg bg-primary/30 border-2 border-primary flex items-center justify-center brush-btn"><div class="size-3 rounded-full bg-white"></div></button>
-                        <button data-size="16" class="size-8 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center brush-btn"><div class="size-5 rounded-full bg-white"></div></button>
+                        <button data-size="4" class="size-6 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center brush-btn"><div class="size-1 rounded-full bg-white"></div></button>
+                        <button data-size="8" class="size-6 rounded-lg bg-primary/30 border-2 border-primary flex items-center justify-center brush-btn"><div class="size-2 rounded-full bg-white"></div></button>
+                        <button data-size="16" class="size-6 rounded-lg bg-surface-accent border border-white/10 flex items-center justify-center brush-btn"><div class="size-3 rounded-full bg-white"></div></button>
                     </div>
                 </div>
-                <button onclick="app.showLeaderboard()" class="w-full h-14 bg-white text-black font-bold rounded-full flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
-                    <span class="material-symbols-outlined text-primary">check_circle</span> ¡ENVIAR!
+                <button onclick="app.showLeaderboard()" class="w-full h-12 bg-white text-black font-bold rounded-full flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all text-sm">
+                    <span class="material-symbols-outlined text-primary">check_circle</span> ¡TRAZO LISTO!
                 </button>
             </div>
         `;

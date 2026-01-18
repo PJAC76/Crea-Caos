@@ -462,6 +462,7 @@ const app = {
                 </div>
             `;
 
+
             this.dom.gameFooter.innerHTML = `
             <div class="flex flex-col items-center gap-3 w-full pointer-events-auto relative z-50">
                 <button id="btn-scan" class="size-20 rounded-full bg-primary border-[6px] border-white/10 shadow-2xl flex items-center justify-center active:scale-95 transition-all group cursor-pointer touch-manipulation">
@@ -628,24 +629,33 @@ const app = {
         const scanArea = document.getElementById('scan-area');
         const btnScan = document.getElementById('btn-scan');
 
+        // DEBUG: Alert detection result directly
+        // alert(`Debug: Success=${success}, Detected=${detectedObject}`);
+        
         if (success) {
             // Success!
             const current = this.scavengerState.objectives[this.scavengerState.currentIndex];
             current.found = true;
             this.scavengerState.score += 100;
 
-            feedbackArea.innerHTML = `
-                <div class="bg-green-500/20 border border-green-500/40 rounded-2xl px-6 py-3 flex items-center gap-3 animate-in zoom-in">
-                    <span class="text-3xl">✅</span>
-                    <div>
-                        <p class="text-green-400 font-bold">¡Encontrado!</p>
-                        <p class="text-green-300/60 text-xs">Es un(a) ${detectedObject}</p>
+            if(feedbackArea) {
+                feedbackArea.innerHTML = `
+                    <div class="bg-green-500/90 border border-green-500/40 rounded-2xl px-6 py-3 flex items-center gap-3 animate-in zoom-in shadow-xl">
+                        <span class="text-3xl">✅</span>
+                        <div>
+                            <p class="text-white font-bold">¡Encontrado!</p>
+                            <p class="text-green-100 text-xs">Es un(a) ${detectedObject}</p>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                alert(`¡Encontrado! ${detectedObject}`);
+            }
 
-            scanArea.classList.remove('border-primary');
-            scanArea.classList.add('border-green-500', 'shadow-[0_0_30px_rgba(34,197,94,0.5)]');
+            if(scanArea) {
+                 scanArea.classList.remove('border-primary');
+                 scanArea.classList.add('border-green-500', 'shadow-[0_0_30px_rgba(34,197,94,0.5)]');
+            }
 
             // Move to next objective or finish
             setTimeout(() => {
@@ -663,25 +673,35 @@ const app = {
             }, 2000);
         } else {
             // Fail
-            feedbackArea.innerHTML = `
-                <div class="bg-red-500/20 border border-red-500/40 rounded-2xl px-6 py-3 flex items-center gap-3 animate-in zoom-in">
-                    <span class="text-3xl">❌</span>
-                    <div>
-                        <p class="text-red-400 font-bold">No es eso</p>
-                        <p class="text-red-300/60 text-xs">Veo: ${detectedObject || 'nada'}</p>
+            if(feedbackArea) {
+                feedbackArea.innerHTML = `
+                    <div class="bg-red-500/90 border border-red-500/40 rounded-2xl px-6 py-3 flex items-center gap-3 animate-in zoom-in shadow-xl">
+                        <span class="text-3xl">❌</span>
+                        <div>
+                            <p class="text-white font-bold">No es eso</p>
+                            <p class="text-red-100 text-xs text-left">Veo: ${detectedObject || 'nada'}</p>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                alert(`No es eso. Veo: ${detectedObject}`);
+            }
 
-            scanArea.classList.remove('border-primary');
-            scanArea.classList.add('border-red-500', 'shadow-[0_0_30px_rgba(239,68,68,0.5)]');
+            if(scanArea) {
+                scanArea.classList.remove('border-primary');
+                scanArea.classList.add('border-red-500', 'shadow-[0_0_30px_rgba(239,68,68,0.5)]');
+            }
 
             setTimeout(() => {
-                scanArea.classList.remove('border-red-500', 'shadow-[0_0_30px_rgba(239,68,68,0.5)]');
-                scanArea.classList.add('border-primary/40');
-                feedbackArea.innerHTML = '';
-                btnScan.disabled = false;
-                btnScan.classList.remove('opacity-50');
+                if(scanArea) {
+                    scanArea.classList.remove('border-red-500', 'shadow-[0_0_30px_rgba(239,68,68,0.5)]');
+                    scanArea.classList.add('border-primary/40');
+                }
+                if(feedbackArea) feedbackArea.innerHTML = '';
+                if(btnScan) {
+                    btnScan.disabled = false;
+                    btnScan.classList.remove('opacity-50');
+                }
                 this.scavengerState.isScanning = false;
             }, 2000);
         }

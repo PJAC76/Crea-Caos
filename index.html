@@ -136,8 +136,8 @@
         </section>
 
         <!-- SCREEN: LOBBY -->
-        <section id="screen-lobby" class="absolute inset-0 flex-col hidden z-20 bg-background-dark">
-            <header class="p-6 pt-8 flex justify-between items-center">
+        <section id="screen-lobby" class="absolute inset-0 flex-col hidden z-20 bg-background-dark overflow-y-auto no-scrollbar">
+            <header class="p-6 pt-8 flex justify-between items-center shrink-0">
                 <button onclick="app.showScreen('menu')" class="size-10 rounded-full bg-surface-accent flex items-center justify-center border border-white/10">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
@@ -147,14 +147,14 @@
                 </div>
             </header>
 
-            <main class="flex-1 p-6 flex flex-col">
-                <div class="flex-1 bg-surface-accent/30 rounded-3xl border-2 border-dashed border-white/10 p-4 mb-6">
+            <main class="flex-1 p-6 flex flex-col min-h-0">
+                <div class="flex-1 bg-surface-accent/30 rounded-3xl border-2 border-dashed border-white/10 p-4 mb-6 min-h-[200px]">
                     <div id="player-grid" class="grid grid-cols-4 gap-4 content-start">
                         <!-- Players injected here by JS -->
                     </div>
                 </div>
 
-                <div class="bg-surface-dark rounded-2xl p-4 border border-white/5 flex items-center justify-between mb-6">
+                <div class="bg-surface-dark rounded-2xl p-4 border border-white/5 flex items-center justify-between mb-6 shrink-0">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-accent">group</span>
                         <span class="text-sm font-bold">Jugadores Listos</span>
@@ -162,7 +162,7 @@
                     <span id="player-count" class="text-xl font-bold">0 / 8</span>
                 </div>
 
-                <button id="btn-start-game" class="w-full h-16 bg-white text-black font-black text-lg rounded-full shadow-xl shadow-white/10 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <button id="btn-start-game" class="w-full h-16 bg-white text-black font-black text-lg rounded-full shadow-xl shadow-white/10 flex items-center justify-center gap-2 active:scale-95 transition-all shrink-0 mb-8">
                     <span class="material-symbols-outlined">play_circle</span> DESPEGAR
                 </button>
             </main>

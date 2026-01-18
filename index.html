@@ -1,472 +1,296 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crea-Caos | Creatividad Colectiva</title>
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&family=Noto+Sans:wght@400;700&display=swap"
-        rel="stylesheet">
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
-    <!-- Tailwind for rapid prototyping layout utility (CDN version for vanilla) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crea-Caos: Aventura Creativa</title>
+    <!-- Tailwind CSS (CDN for simplicity) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#f425af",
-                        "background-light": "#f8f5f7",
-                        "background-dark": "#22101c",
-                        "surface-dark": "#392833",
-                        "surface-accent": "#2f1b29"
-                    },
-                    fontFamily: {
-                        "display": ["Spline Sans", "sans-serif"],
-                        "body": ["Noto Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
+                        primary: '#f425af',
+                        secondary: '#00d4ff',
+                        accent: '#ffdd00',
+                        'background-dark': '#120a1f',
+                        'surface-dark': '#1e1433',
+                        'surface-accent': '#2d1f45',
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
+    <!-- TensorFlow.js & MobileNet -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest/dist/mobilenet.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #120a1f;
+            color: white;
+            overflow: hidden; /* App-like feel */
+        }
+        .scan-line {
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        /* Hide Scrollbar but allow scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Transitions */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
+<body class="h-screen w-screen relative">
 
-<body class="bg-background-dark text-white font-display antialiased selection:bg-primary overflow-hidden">
-
-    <div id="app" class="relative min-h-screen w-full transition-all duration-500">
-
+    <!-- APP CONTAINER -->
+    <div id="app" class="h-full w-full flex flex-col relative overflow-hidden max-w-md mx-auto bg-background-dark shadow-2xl">
+        
         <!-- SCREEN: LOADING -->
-        <section id="screen-loading"
-            class="screen absolute inset-0 flex flex-col items-center justify-center p-6 bg-pattern z-[100]">
-            <div class="flex flex-col items-center gap-8 max-w-md w-full animate-in fade-in zoom-in duration-700">
-                <div class="relative group">
-                    <div class="absolute -inset-4 bg-primary/30 rounded-full blur-2xl opacity-75 animate-pulse-slow">
-                    </div>
-                    <div class="relative bg-background-dark border border-white/10 p-8 rounded-full shadow-2xl">
-                        <span class="material-symbols-outlined text-primary text-7xl">brush</span>
-                    </div>
+        <section id="screen-loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background-dark p-8">
+            <div class="relative mb-8">
+                <div class="size-32 rounded-full bg-gradient-to-tr from-primary to-secondary animate-spin blur-xl absolute inset-0 opacity-50"></div>
+                <div class="size-32 rounded-full bg-surface-dark relative flex items-center justify-center border-4 border-white/10 shadow-2xl z-10">
+                    <span class="material-symbols-outlined text-6xl text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary animate-bounce">rocket_launch</span>
                 </div>
-                <div class="text-center">
-                    <h1 class="text-white text-5xl font-bold tracking-tight mb-2">Crea-Caos</h1>
-                    <p class="text-primary/60 text-sm font-medium tracking-widest uppercase">Creatividad Colectiva</p>
-                </div>
-                <div class="w-full px-8 mt-12">
-                    <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-                        <div id="loading-bar"
-                            class="h-full bg-primary rounded-full transition-all duration-300 ease-out"
-                            style="width: 0%; box-shadow: 0 0 15px rgba(244,37,175,0.6);"></div>
-                    </div>
-                    <p id="loading-text" class="text-center text-white/40 text-sm mt-4 font-medium animate-pulse">
-                        Preparando el caos...</p>
-                </div>
+            </div>
+            <h1 class="text-4xl font-black mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">CREA-CAOS</h1>
+            <p id="loading-text" class="text-white/50 text-sm font-medium animate-pulse mb-8">Iniciando motores creativos...</p>
+            
+            <div class="w-full h-2 bg-surface-accent rounded-full overflow-hidden relative">
+                <div id="loading-bar" class="h-full bg-gradient-to-r from-primary to-secondary w-0 transition-all duration-300"></div>
             </div>
         </section>
 
-        <!-- SCREEN: MAIN MENU -->
-        <section id="screen-menu" class="screen absolute inset-0 flex-col items-center justify-center p-6 hidden">
-            <!-- Background Ambient -->
-            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-                <div class="absolute -top-40 -left-40 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse">
+        <!-- SCREEN: MENU -->
+        <section id="screen-menu" class="absolute inset-0 flex-col hidden overflow-y-auto no-scrollbar pb-20">
+            <header class="p-6 pt-12 flex justify-between items-center bg-gradient-to-b from-background-dark to-transparent sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[2px]">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0OgfMPryJIy7pXxRuLOXzQzVj0DOiDDckr-okCwf5YO-XR9zXOU6zE95MZ4mfIoJAgXYE-bNDh69C3qbOWLh7bh2aFADCPi15llG3QBbEW4mqr7_iklohtrmIsZ3lbMobo2Gg4TMNF74r1BgARXyFi1o_qPxPhZXh6rOh3vrEAEum94rzY6_g_yiPTQWDZrPTXAn3O7iZpCOXsiL6SCRO7k7qxxtfsuucvOeh2bac9xmogca0oFyrgnQkD82HqTsA_phC-gzsWx8" class="rounded-full w-full h-full object-cover" alt="Avatar">
+                    </div>
+                    <div>
+                        <p class="text-xs text-white/60 font-bold uppercase tracking-wider">Bienvenido</p>
+                        <h2 class="text-xl font-bold">Capitán Creativo</h2>
+                    </div>
                 </div>
-                <div class="absolute bottom-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px]"></div>
-            </div>
-
-            <header class="absolute top-0 w-full p-6 flex justify-between items-center max-w-md">
-                <div class="opacity-50 text-xs font-bold tracking-[.3em] uppercase text-primary">Crea-Caos</div>
-                <div class="flex gap-2">
-                    <button onclick="app.showScreen('instructions')"
-                        class="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all group">
-                        <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform duration-300">help</span>
-                    </button>
-                    <button onclick="app.showScreen('settings')"
-                        class="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all group">
-                        <span
-                            class="material-symbols-outlined text-primary group-hover:rotate-90 transition-transform duration-500">settings</span>
-                    </button>
-                </div>
+                <button onclick="app.showSettings()" class="size-10 rounded-full bg-surface-accent flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-white/80">settings</span>
+                </button>
             </header>
 
-            <main class="flex flex-col items-center gap-12 w-full max-w-sm">
-                <div class="relative group">
-                    <div class="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div
-                        class="relative size-48 rounded-3xl bg-gradient-to-br from-[#22101c] to-[#3d1c32] border-2 border-white/10 shadow-2xl flex items-center justify-center rotate-3 group-hover:rotate-6 transition-transform">
-                        <span class="text-7xl">🎨</span>
-                        <span class="absolute top-4 right-4 text-3xl animate-bounce">✨</span>
+            <main class="flex-1 px-6 flex flex-col gap-6">
+                <!-- Promo Banner -->
+                <div class="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transition-transform active:scale-95">
+                    <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" alt="Game Banner">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-6 flex flex-col justify-end">
+                        <span class="bg-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest w-fit mb-2">Nuevo Evento</span>
+                        <h3 class="text-3xl font-black leading-tight mb-1">Caos Cósmico</h3>
+                        <p class="text-white/80 text-sm line-clamp-2">¡Constrúye máquinas espaciales y compite por la galaxia!</p>
                     </div>
                 </div>
 
-                <div class="text-center space-y-2">
-                    <h1 class="text-4xl font-black text-white leading-tight">¡Bienvenido<br><span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">al
-                            Caos!</span></h1>
-                    <p class="text-white/60 text-lg">¿Qué quieres hacer hoy?</p>
-                </div>
-
-                <div class="flex flex-col gap-4 w-full">
-                    <button onclick="app.createGame()"
-                        class="group relative w-full h-16 rounded-full bg-primary hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/30 overflow-hidden">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="bg-surface-accent p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-3 hover:bg-surface-accent/80 transition-all active:scale-95" id="btn-create-game" onclick="app.createGame()">
+                        <div class="size-14 rounded-2xl bg-gradient-to-br from-primary to-pink-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                            <span class="material-symbols-outlined text-3xl">add_circle</span>
                         </div>
-                        <div class="flex items-center justify-center gap-3">
-                            <span class="material-symbols-outlined text-white">add_circle</span>
-                            <span class="font-bold text-lg uppercase tracking-wide">Crear Partida</span>
-                        </div>
+                        <span class="font-bold text-sm">Crear Partida</span>
                     </button>
-                    <button onclick="app.joinGame()"
-                        class="w-full h-16 rounded-full border-2 border-primary/30 bg-surface-dark/30 hover:border-primary/60 hover:bg-surface-dark/50 transition-all active:scale-95 flex items-center justify-center gap-3">
-                        <span class="material-symbols-outlined text-primary">group_add</span>
-                        <span class="text-primary font-bold text-lg uppercase tracking-wide">Unirse a Partida</span>
+                    <button class="bg-surface-accent p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-3 hover:bg-surface-accent/80 transition-all active:scale-95" id="btn-join-game" onclick="app.joinGame()">
+                        <div class="size-14 rounded-2xl bg-gradient-to-br from-secondary to-blue-600 flex items-center justify-center shadow-lg shadow-secondary/30">
+                            <span class="material-symbols-outlined text-3xl">login</span>
+                        </div>
+                        <span class="font-bold text-sm">Unirse</span>
                     </button>
                 </div>
             </main>
         </section>
 
         <!-- SCREEN: LOBBY -->
-        <section id="screen-lobby" class="screen absolute inset-0 flex flex-col hidden">
-            <header class="p-6 flex items-center justify-between">
-                <button onclick="app.showScreen('menu')"
-                    class="size-12 rounded-full bg-white/5 flex items-center justify-center">
+        <section id="screen-lobby" class="absolute inset-0 flex-col hidden z-20 bg-background-dark">
+            <header class="p-6 pt-8 flex justify-between items-center">
+                <button onclick="app.showScreen('menu')" class="size-10 rounded-full bg-surface-accent flex items-center justify-center border border-white/10">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
-                <div class="text-xs font-bold tracking-[.2em] text-white/40 uppercase">Sala de Espera</div>
-                <div class="w-12"></div>
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] text-white/40 uppercase tracking-widest font-bold">CÓDIGO DE SALA</span>
+                    <span id="lobby-room-code" class="text-3xl font-black text-primary tracking-widest">ABCD</span>
+                </div>
             </header>
 
-            <main class="flex-1 overflow-y-auto px-6 pb-6 flex flex-col items-center w-full">
-                <div class="mt-8 text-center space-y-4">
-                    <p class="text-white/40 font-bold tracking-widest text-xs uppercase">Código de Sala</p>
-                    <div class="relative group">
-                        <div
-                            class="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500">
-                        </div>
-                        <div class="relative bg-surface-accent border border-white/10 px-12 py-6 rounded-2xl">
-                            <h1 id="lobby-room-code"
-                                class="text-primary text-6xl font-black tracking-[0.15em] leading-none">----</h1>
-                        </div>
+            <main class="flex-1 p-6 flex flex-col">
+                <div class="flex-1 bg-surface-accent/30 rounded-3xl border-2 border-dashed border-white/10 p-4 mb-6">
+                    <div id="player-grid" class="grid grid-cols-4 gap-4 content-start">
+                        <!-- Players injected here by JS -->
                     </div>
                 </div>
 
-                <div class="w-full mt-12 space-y-6">
-                    <div class="flex justify-between items-end px-2">
-                        <h3 class="text-xl font-bold">Jugadores</h3>
-                        <span id="player-count"
-                            class="text-primary font-bold text-sm bg-primary/10 px-3 py-1 rounded-full">1 / 8</span>
+                <div class="bg-surface-dark rounded-2xl p-4 border border-white/5 flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-accent">group</span>
+                        <span class="text-sm font-bold">Jugadores Listos</span>
                     </div>
-                    <div id="player-grid" class="grid grid-cols-4 gap-4 justify-items-center"></div>
+                    <span id="player-count" class="text-xl font-bold">0 / 8</span>
                 </div>
 
-                <!-- Spacer to push button to bottom if space permits, allows scrolling if not -->
-                <div class="flex-1 min-h-[4rem]"></div>
-
-                <div class="w-full pt-6 pb-32">
-                    <button id="btn-start-game"
-                        class="w-full h-16 rounded-xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <span class="material-symbols-outlined">play_circle</span>
-                        Iniciar Partida
-                    </button>
-                </div>
+                <button id="btn-start-game" class="w-full h-16 bg-white text-black font-black text-lg rounded-full shadow-xl shadow-white/10 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined">play_circle</span> DESPEGAR
+                </button>
             </main>
         </section>
 
         <!-- SCREEN: GAME SELECTION -->
-        <section id="screen-game-selection" class="screen absolute inset-0 flex flex-col hidden bg-background-dark p-6">
-            <header class="py-8 text-center">
-                <h1 class="text-3xl font-black text-white">Elige un <span class="text-primary">Minijuego</span></h1>
-                <p class="text-white/40 text-sm mt-2 font-bold uppercase tracking-widest">¡La diversión empieza aquí!
-                </p>
+        <section id="screen-game-selection" class="absolute inset-0 flex-col hidden z-20 bg-background-dark">
+            <header class="p-6 pt-12">
+                <h2 class="text-2xl font-black mb-1">Elige tu Batalla</h2>
+                <p class="text-white/50 text-sm">Selecciona un minijuego para competir</p>
             </header>
-
-            <main class="flex-1 space-y-4 overflow-y-auto pb-32 px-6">
-                <!-- Game Card: Contraption -->
-                <button onclick="app.selectMinigame('contraption')"
-                    class="w-full bg-surface-dark border border-white/10 rounded-2xl p-4 flex items-center gap-4 active:scale-95 transition-all text-left group">
-                    <div
-                        class="size-20 rounded-xl bg-gradient-to-br from-blue-500/20 to-primary/20 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                        ⚙️</div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white">Contraption Craft Off</h3>
-                        <p class="text-white/40 text-xs">Construye máquinas locas en equipo.</p>
+            
+            <main class="flex-1 px-6 pb-6 overflow-y-auto no-scrollbar flex flex-col gap-4">
+                <!-- Card: Contraption -->
+                <div onclick="app.selectMinigame('contraption')" class="relative h-48 rounded-3xl overflow-hidden cursor-pointer group active:scale-95 transition-all">
+                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Contraption">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent p-6 flex flex-col justify-center">
+                        <span class="material-symbols-outlined text-4xl text-accent mb-2">construction</span>
+                        <h3 class="text-2xl font-black italic uppercase">Contraption Craft Off</h3>
+                        <p class="text-xs text-white/70 mt-1 max-w-[70%]">Construye la máquina más loca con piezas aleatorias.</p>
                     </div>
-                    <span class="material-symbols-outlined text-primary">play_arrow</span>
-                </button>
-
-                <!-- Game Card: Scavenger -->
-                <button onclick="app.selectMinigame('scavenger')"
-                    class="w-full bg-surface-dark border border-white/10 rounded-2xl p-4 flex items-center gap-4 active:scale-95 transition-all text-left group">
-                    <div
-                        class="size-20 rounded-xl bg-gradient-to-br from-green-500/20 to-cyan-500/20 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                        📸</div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white">Caza de Pistas</h3>
-                        <p class="text-white/40 text-xs">Busca objetos en el mundo real.</p>
+                </div>
+                 <!-- Card: Scavenger -->
+                <div onclick="app.selectMinigame('scavenger')" class="relative h-48 rounded-3xl overflow-hidden cursor-pointer group active:scale-95 transition-all">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Scavenger">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent p-6 flex flex-col justify-center">
+                        <span class="material-symbols-outlined text-4xl text-secondary mb-2">center_focus_strong</span>
+                        <h3 class="text-2xl font-black italic uppercase">Caza de Pistas</h3>
+                        <p class="text-xs text-white/70 mt-1 max-w-[70%]">Encuentra objetos reales usando la cámara IA.</p>
                     </div>
-                    <span class="material-symbols-outlined text-primary">play_arrow</span>
-                </button>
-
-                <!-- Game Card: Doodle -->
-                <button onclick="app.selectMinigame('doodle')"
-                    class="w-full bg-surface-dark border border-white/10 rounded-2xl p-4 flex items-center gap-4 active:scale-95 transition-all text-left group">
-                    <div
-                        class="size-20 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                        🎨</div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white">Doodle-Duelo</h3>
-                        <p class="text-white/40 text-xs">¡Dibuja y adivina el caos!</p>
+                </div>
+                 <!-- Card: Doodle -->
+                <div onclick="app.selectMinigame('doodle')" class="relative h-48 rounded-3xl overflow-hidden cursor-pointer group active:scale-95 transition-all">
+                    <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Doodle">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent p-6 flex flex-col justify-center">
+                        <span class="material-symbols-outlined text-4xl text-primary mb-2">brush</span>
+                        <h3 class="text-2xl font-black italic uppercase">Doodle Duelo</h3>
+                        <p class="text-xs text-white/70 mt-1 max-w-[70%]">Dibuja conceptos abstractos y gana votos.</p>
                     </div>
-                    <span class="material-symbols-outlined text-primary">play_arrow</span>
-                </button>
+                </div>
             </main>
         </section>
 
-        <!-- SCREEN: GAME (Mando/Controller) -->
-        <section id="screen-game" class="screen absolute inset-0 flex flex-col hidden bg-background-dark">
-            <header class="p-4 flex justify-between items-center z-20">
-                <div class="flex items-center gap-3">
-                    <div class="size-10 rounded-full border-2 border-primary overflow-hidden">
-                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDebVGR4g0fpjuLjs4vWm2yMOnPGlp96Tp7LTjgeOI_-OxX_idxRfE7uuarK7KhhLPC-4dvVkyKyaM03vS25dsd7nYZEzFPRP3e-8zc37Zc7kVMx5ccV9cU8ev4zRcnS8fdeKcYm-1g0cp7pez8P7Jt-6NeMrOHru8ZR7HaQCGdNMcmpxu9U2Olfp1D6E6Ze2b_lv65_DmnMr7M7sOFxD0oxF-dEjUo5_q9H0iMhkoMJ8gECixKpoeGHwFIskkTjdKpCeuQ1CEqINE"
-                            class="w-full h-full object-cover">
+        <!-- SCREEN: GAMEPLAY AREA -->
+        <section id="screen-game" class="absolute inset-0 flex-col hidden z-30 bg-background-dark">
+            <header class="p-4 pt-8 flex items-center justify-between absolute top-0 w-full z-20 pointer-events-none">
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <div class="size-8 rounded-full bg-gradient-to-br from-primary to-secondary p-[1px]">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0OgfMPryJIy7pXxRuLOXzQzVj0DOiDDckr-okCwf5YO-XR9zXOU6zE95MZ4mfIoJAgXYE-bNDh69C3qbOWLh7bh2aFADCPi15llG3QBbEW4mqr7_iklohtrmIsZ3lbMobo2Gg4TMNF74r1BgARXyFi1o_qPxPhZXh6rOh3vrEAEum94rzY6_g_yiPTQWDZrPTXAn3O7iZpCOXsiL6SCRO7k7qxxtfsuucvOeh2bac9xmogca0oFyrgnQkD82HqTsA_phC-gzsWx8" class="rounded-full w-full h-full object-cover" alt="User">
                     </div>
-                    <div class="flex flex-col -space-y-1">
-                        <span class="text-[10px] font-bold text-white/40 uppercase">Jugador 1</span>
-                        <span class="text-xs font-bold text-white">Equipo Rojo</span>
+                     <div>
+                        <p class="text-[10px] text-white/50 font-bold uppercase">JUGADOR 1</p>
+                        <p class="text-xs font-bold leading-none">Equipo Rojo</p>
                     </div>
                 </div>
-                <div class="bg-surface-accent px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                    </span>
-                    <span class="text-[10px] font-bold uppercase tracking-widest">En Juego</span>
+                <div class="bg-surface-dark/80 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 flex items-center gap-2 pointer-events-auto">
+                    <div class="size-2 rounded-full bg-primary animate-pulse"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest">EN JUEGO</span>
                 </div>
             </header>
             <main id="game-content" class="flex-1 relative flex flex-col items-center p-6 overflow-y-auto"></main>
-            <footer id="game-footer" class="p-6 pb-32 hidden absolute bottom-0 w-full bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent z-10"></footer>
+            <footer id="game-footer" class="hidden w-full z-10 bg-surface-dark border-t border-white/5"></footer>
         </section>
 
         <!-- SCREEN: LEADERBOARD -->
-        <section id="screen-leaderboard" class="screen absolute inset-0 flex flex-col p-6 hidden">
-            <header class="p-6 text-center">
-                <h2 class="text-xs font-bold tracking-[.3em] text-primary uppercase">Fin de la Partida</h2>
-            </header>
-            <main class="flex-1 flex flex-col items-center gap-8 animate-in zoom-in duration-700 overflow-y-auto pb-32">
-                <span class="text-8xl">🏆</span>
-                <div class="text-center space-y-2">
-                    <h1 class="text-4xl font-black">Equipo Rojo</h1>
-                    <p class="text-white/40 font-bold uppercase tracking-widest text-sm">¡Victoria Magistral!</p>
-                </div>
-                <div class="w-full space-y-4">
-                    <div
-                        class="bg-surface-accent/60 rounded-2xl p-5 border border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <span class="text-2xl font-black text-primary italic">#1</span>
-                            <div class="size-12 rounded-full bg-slate-700"></div>
-                            <span class="font-bold">Tú (Host)</span>
-                        </div>
-                        <span class="text-primary font-black">2,450 pts</span>
-                    </div>
-                </div>
-            </main>
-            <footer class="p-6 pb-32 fixed bottom-0 left-0 w-full bg-gradient-to-t from-background-dark via-background-dark to-transparent">
-                <button onclick="app.showScreen('menu')"
-                    class="w-full h-16 rounded-xl bg-white text-black font-extrabold text-lg shadow-2xl active:scale-95 transition-all">VOLVER
-                    AL MENÚ</button>
-            </footer>
+        <section id="screen-leaderboard" class="absolute inset-0 flex-col hidden z-40 bg-background-dark p-8 items-center justify-center">
+            <h1 class="text-4xl font-black mb-8 text-center">¡Resultados!</h1>
+             <!-- Placeholder for results -->
+             <div class="w-full bg-surface-accent p-6 rounded-3xl mb-8">
+                 <div class="flex items-center justify-between mb-4">
+                     <div class="flex items-center gap-3">
+                         <span class="text-2xl">🥇</span>
+                         <span class="font-bold">Capitán Creativo</span>
+                     </div>
+                     <span class="font-black text-primary">500 pts</span>
+                 </div>
+                 <div class="flex items-center justify-between opacity-50">
+                     <div class="flex items-center gap-3">
+                         <span class="text-2xl">🥈</span>
+                         <span class="font-bold">Ana Artista</span>
+                     </div>
+                     <span class="font-bold">350 pts</span>
+                 </div>
+             </div>
+             
+             <button onclick="app.showScreen('menu')" class="bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">Volver al Menú</button>
         </section>
 
-        <!-- SCREEN: SETTINGS -->
-        <section id="screen-settings" class="screen absolute inset-0 flex flex-col p-6 hidden bg-background-dark z-50">
-            <header class="py-4 flex items-center justify-between">
-                <button onclick="app.showScreen('menu')"
-                    class="size-12 rounded-full bg-white/5 flex items-center justify-center">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
-                <h1 class="text-xl font-bold">Ajustes</h1>
-                <div class="w-12"></div>
-            </header>
-
-            <main class="flex-1 space-y-6 mt-8">
-                <div class="bg-surface-dark/50 rounded-2xl p-6 border border-white/10 space-y-6">
-                    <h3 class="text-primary text-xs font-bold uppercase tracking-widest">Audio</h3>
-                    
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80">Música</span>
-                            <span class="text-primary font-bold">70%</span>
+        <!-- MODAL: SETTINGS -->
+        <div id="screen-settings" class="absolute inset-0 hidden z-[60] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center">
+            <div class="bg-surface-dark w-full sm:w-[90%] rounded-t-3xl sm:rounded-3xl p-8 animate-in slide-in-from-bottom duration-300 border-t border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-black">Ajustes</h2>
+                    <button onclick="app.hideSettings()" class="size-8 rounded-full bg-surface-accent flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                </div>
+                
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-bold">Música</span>
+                            <span class="text-xs text-white/50">70%</span>
                         </div>
-                        <input type="range" min="0" max="100" value="70" 
-                            class="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary">
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-white/80">Efectos</span>
-                            <span class="text-primary font-bold">50%</span>
-                        </div>
-                        <input type="range" min="0" max="100" value="50" 
-                            class="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary">
-                    </div>
-                </div>
-
-                <div class="bg-surface-dark/50 rounded-2xl p-6 border border-white/10 space-y-4">
-                    <h3 class="text-primary text-xs font-bold uppercase tracking-widest">Accesibilidad</h3>
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="text-white/80">Texto grande</span>
-                        <button class="w-14 h-8 bg-white/10 rounded-full relative">
-                            <div class="size-6 bg-white/40 rounded-full absolute top-1 left-1 transition-all"></div>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-surface-dark/50 rounded-2xl p-6 border border-white/10">
-                    <h3 class="text-primary text-xs font-bold uppercase tracking-widest mb-4">Acerca de</h3>
-                    <p class="text-white/40 text-sm">Crea-Caos v1.0</p>
-                    <p class="text-white/40 text-xs mt-1">Creatividad Colectiva para Niños</p>
-                </div>
-            </main>
-        </section>
-
-        <!-- SCREEN: INSTRUCTIONS -->
-        <section id="screen-instructions" class="screen absolute inset-0 flex flex-col hidden bg-background-dark z-50 overflow-hidden">
-            <header class="p-6 flex items-center justify-between shrink-0">
-                <button onclick="app.showScreen('menu')"
-                    class="size-12 rounded-full bg-white/5 flex items-center justify-center">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
-                <h1 class="text-xl font-bold">Cómo Jugar</h1>
-                <div class="w-12"></div>
-            </header>
-
-            <main class="flex-1 overflow-y-auto px-6 pb-8 space-y-6">
-                <!-- Intro -->
-                <div class="bg-gradient-to-br from-primary/20 to-purple-600/20 border border-primary/30 rounded-2xl p-5">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="text-4xl">🎮</span>
-                        <div>
-                            <h2 class="text-xl font-bold text-white">¡Bienvenido a Crea-Caos!</h2>
-                            <p class="text-white/60 text-sm">Una aventura de creatividad grupal</p>
+                        <div class="h-2 bg-surface-accent rounded-full overflow-hidden">
+                            <div class="h-full bg-primary w-[70%]"></div>
                         </div>
                     </div>
-                    <p class="text-white/70 text-sm leading-relaxed">
-                        Crea-Caos es un juego multijugador donde tú y tus amigos compiten en 3 minijuegos creativos. 
-                        ¡El objetivo es divertirse y ganar puntos!
-                    </p>
-                </div>
-
-                <!-- How to Start -->
-                <div class="bg-surface-dark/50 rounded-2xl p-5 border border-white/10">
-                    <h3 class="text-primary text-xs font-bold uppercase tracking-widest mb-4">🚀 Comenzar una Partida</h3>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex gap-3">
-                            <span class="size-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center shrink-0">1</span>
-                            <p class="text-white/70"><strong class="text-white">Crear Partida:</strong> Crea una sala y comparte el código de 4 letras con tus amigos.</p>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-bold">Efectos de Sonido</span>
+                            <span class="text-xs text-white/50">50%</span>
                         </div>
-                        <div class="flex gap-3">
-                            <span class="size-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center shrink-0">2</span>
-                            <p class="text-white/70"><strong class="text-white">Unirse:</strong> Los demás jugadores usan el código para entrar a tu sala.</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="size-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center shrink-0">3</span>
-                            <p class="text-white/70"><strong class="text-white">Iniciar:</strong> Cuando estén todos listos, el host inicia la partida.</p>
+                        <div class="h-2 bg-surface-accent rounded-full overflow-hidden">
+                            <div class="h-full bg-secondary w-[50%]"></div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Game 1 -->
-                <div class="bg-surface-dark/50 rounded-2xl p-5 border border-white/10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="size-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center text-2xl">⚙️</div>
-                        <div>
-                            <h3 class="font-bold text-white">Contraption Craft Off</h3>
-                            <p class="text-primary text-xs font-bold uppercase tracking-widest">Juego de Construcción</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm text-white/70">
-                        <p>🔧 <strong class="text-white">Objetivo:</strong> Construye la máquina más loca añadiendo piezas.</p>
-                        <p>⏱️ <strong class="text-white">Tiempo:</strong> 45 segundos para construir.</p>
-                        <p>⭐ <strong class="text-white">Puntos:</strong> Cada pieza vale entre 8 y 25 puntos.</p>
-                        <p>💡 <strong class="text-white">Consejo:</strong> ¡Añade muchas piezas para máxima puntuación!</p>
+                    <div class="flex items-center justify-between mt-4">
+                        <button class="text-red-400 text-sm font-bold">Cerrar Sesión</button>
+                        <button onclick="app.hideSettings()" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm">Guardar</button>
                     </div>
                 </div>
-
-                <!-- Game 2 -->
-                <div class="bg-surface-dark/50 rounded-2xl p-5 border border-white/10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="size-12 rounded-xl bg-gradient-to-br from-green-500/20 to-cyan-500/20 flex items-center justify-center text-2xl">📸</div>
-                        <div>
-                            <h3 class="font-bold text-white">Caza de Pistas</h3>
-                            <p class="text-primary text-xs font-bold uppercase tracking-widest">Búsqueda de Objetos</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm text-white/70">
-                        <p>🔍 <strong class="text-white">Objetivo:</strong> Encuentra 3 objetos siguiendo las pistas.</p>
-                        <p>⏱️ <strong class="text-white">Tiempo:</strong> 90 segundos para encontrar todo.</p>
-                        <p>📱 <strong class="text-white">Cómo jugar:</strong> Presiona el botón de escanear cuando creas haber encontrado el objeto.</p>
-                        <p>⭐ <strong class="text-white">Puntos:</strong> 100 puntos por cada objeto encontrado.</p>
-                    </div>
-                </div>
-
-                <!-- Game 3 -->
-                <div class="bg-surface-dark/50 rounded-2xl p-5 border border-white/10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="size-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-2xl">🎨</div>
-                        <div>
-                            <h3 class="font-bold text-white">Doodle-Duelo</h3>
-                            <p class="text-primary text-xs font-bold uppercase tracking-widest">Dibujo Creativo</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm text-white/70">
-                        <p>✏️ <strong class="text-white">Objetivo:</strong> Dibuja la palabra secreta que te aparece.</p>
-                        <p>⏱️ <strong class="text-white">Tiempo:</strong> 60 segundos para dibujar.</p>
-                        <p>🎨 <strong class="text-white">Herramientas:</strong> 7 colores, 3 grosores, borrador y limpiar.</p>
-                        <p>💡 <strong class="text-white">Consejo:</strong> ¡Sé creativo y diviértete dibujando!</p>
-                    </div>
-                </div>
-
-                <!-- Tips -->
-                <div class="bg-surface-dark/50 rounded-2xl p-5 border border-white/10">
-                    <h3 class="text-primary text-xs font-bold uppercase tracking-widest mb-4">💡 Consejos Pro</h3>
-                    <ul class="space-y-2 text-sm text-white/70">
-                        <li>• Juega con 2-8 amigos para máxima diversión</li>
-                        <li>• El jugador con más puntos totales gana</li>
-                        <li>• ¡No te rindas si fallas un escaneo!</li>
-                        <li>• En Doodle, los dibujos simples funcionan mejor</li>
-                    </ul>
-                </div>
-            </main>
-        </section>
+            </div>
+        </div>
 
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0"></script>
+    <!-- App Logic -->
     <script src="app.js"></script>
 </body>
-
 </html>

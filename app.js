@@ -255,8 +255,8 @@ const app = {
         };
 
         this.dom.gameContent.innerHTML = `
-            <div class="w-full flex flex-col h-full gap-4 animate-in slide-in-from-bottom duration-700">
-                <div class="flex items-center justify-between">
+            <div class="w-full flex flex-col h-full gap-4 animate-in slide-in-from-bottom duration-700 overflow-y-auto pb-48">
+                <div class="flex items-center justify-between shrink-0">
                     <div class="bg-surface-accent/80 px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">stars</span>
                         <span id="contraption-score" class="text-xl font-black text-white">0</span>
@@ -268,7 +268,7 @@ const app = {
                     </div>
                 </div>
                 
-                <div class="flex-1 bg-surface-dark/50 rounded-2xl border-2 border-dashed border-white/20 p-4 relative overflow-hidden">
+                <div class="flex-1 bg-surface-dark/50 rounded-2xl border-2 border-dashed border-white/20 p-4 relative overflow-hidden shrink-0 min-h-[250px]">
                     <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
                         <span class="material-symbols-outlined text-6xl text-white/20">construction</span>
                     </div>
@@ -276,7 +276,7 @@ const app = {
                     <div id="construction-area" class="flex flex-wrap gap-2 justify-center content-start min-h-[120px]"></div>
                 </div>
 
-                <div class="bg-surface-accent/50 rounded-2xl p-4 border border-white/10">
+                <div class="bg-surface-accent/50 rounded-2xl p-4 border border-white/10 shrink-0">
                     <p class="text-primary text-[10px] font-bold uppercase tracking-widest mb-3">Piezas Disponibles</p>
                     <div id="piece-inventory" class="grid grid-cols-3 gap-3"></div>
                 </div>
@@ -381,7 +381,6 @@ const app = {
     },
 
     renderScavengerGame() {
-        // All available objectives (12 total)
         // All available objectives (Updated for AI detection)
         const allObjectives = [
             { id: 1, question: '¿Qué usas para escribir en la computadora?', hint: 'Tiene muchas teclas', icon: '⌨️', target: ['computer keyboard', 'keyboard', 'typewriter keyboard'], found: false },
@@ -407,42 +406,89 @@ const app = {
             isScanning: false
         };
 
-        this.renderScavengerUI();
-        this.setupScavengerGame();
+        this.renderScavengerUI(true);
+        this.setupScavengerGame(true);
     },
 
-    renderScavengerUI() {
+    renderScavengerUI(initial = false) {
         const current = this.scavengerState.objectives[this.scavengerState.currentIndex];
         const found = this.scavengerState.objectives.filter(o => o.found).length;
         const total = this.scavengerState.objectives.length;
 
-        this.dom.gameContent.innerHTML = `
-            <div class="absolute inset-0 bg-slate-900 overflow-hidden">
-                <video id="camera-feed" autoplay playsinline muted class="h-full w-full object-cover opacity-60"></video>
-                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
-                <div id="scan-line" class="absolute inset-x-0 top-1/2 h-1 bg-primary/40 shadow-[0_0_15px_#f425af] scan-line"></div>
-            </div>
-            <div class="relative z-10 w-full flex flex-col h-full py-4 gap-4">
-                <div class="flex items-center justify-between px-2">
-                    <div class="bg-surface-accent/80 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-sm">stars</span>
-                        <span id="scavenger-score" class="text-lg font-black text-white">${this.scavengerState.score}</span>
-                    </div>
-                    <div class="flex gap-1">
-                        ${this.scavengerState.objectives.map(o => `
-                            <div class="size-8 rounded-lg ${o.found ? 'bg-green-500/30 border-green-500' : 'bg-surface-accent/50 border-white/10'} border flex items-center justify-center text-lg">
-                                ${o.found ? '✅' : o.icon}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="bg-surface-accent/80 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10">
-                        <span id="scavenger-timer" class="text-lg font-black ${this.scavengerState.timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-primary'}">${this.scavengerState.timeLeft}</span>
-                        <span class="text-xs text-white/40">s</span>
-                    </div>
+        if (initial) {
+            this.dom.gameContent.innerHTML = `
+                <div class="absolute inset-0 bg-slate-900 overflow-hidden">
+                    <video id="camera-feed" autoplay playsinline muted class="h-full w-full object-cover opacity-60"></video>
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+                    <div id="scan-line" class="absolute inset-x-0 top-1/2 h-1 bg-primary/40 shadow-[0_0_15px_#f425af] scan-line"></div>
                 </div>
+                <div class="relative z-10 w-full flex flex-col h-full py-4 gap-4 pointer-events-none">
+                    <div class="flex items-center justify-between px-2 pointer-events-auto">
+                        <div class="bg-surface-accent/80 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-sm">stars</span>
+                            <span id="scavenger-score" class="text-lg font-black text-white">${this.scavengerState.score}</span>
+                        </div>
+                        <div id="objectives-list" class="flex gap-1">
+                            ${this.scavengerState.objectives.map(o => `
+                                <div class="size-8 rounded-lg ${o.found ? 'bg-green-500/30 border-green-500' : 'bg-surface-accent/50 border-white/10'} border flex items-center justify-center text-lg">
+                                    ${o.found ? '✅' : o.icon}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="bg-surface-accent/80 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10">
+                            <span id="scavenger-timer" class="text-lg font-black ${this.scavengerState.timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-primary'}">${this.scavengerState.timeLeft}</span>
+                            <span class="text-xs text-white/40">s</span>
+                        </div>
+                    </div>
 
-                <div class="bg-surface-accent/80 backdrop-blur-md rounded-2xl p-4 border-l-4 border-primary shadow-2xl">
-                    <div class="flex items-center justify-between">
+                    <div id="current-objective-card" class="bg-surface-accent/80 backdrop-blur-md rounded-2xl p-4 border-l-4 border-primary shadow-2xl pointer-events-auto transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-primary text-[10px] font-bold uppercase tracking-widest mb-1">Objetivo ${this.scavengerState.currentIndex + 1}/${total}</p>
+                                <h2 class="text-xl font-bold">${current.question}</h2>
+                                <p class="text-white/60 text-xs mt-1">${current.hint}</p>
+                            </div>
+                            <span class="text-4xl">${current.icon}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex items-center justify-center">
+                        <div id="scan-area" class="size-56 border-2 border-primary/40 rounded-3xl relative flex items-center justify-center transition-all duration-300">
+                            <span class="material-symbols-outlined text-4xl text-white/30 animate-pulse">center_focus_weak</span>
+                        </div>
+                    </div>
+
+                    <div id="feedback-area" class="h-16 flex items-center justify-center pointer-events-auto"></div>
+                </div>
+            `;
+
+            this.dom.gameFooter.innerHTML = `
+                <div class="flex flex-col items-center gap-3 w-full">
+                    <button id="btn-scan" class="size-20 rounded-full bg-primary border-[6px] border-white/10 shadow-2xl flex items-center justify-center active:scale-95 transition-all group z-50">
+                        <span class="material-symbols-outlined text-3xl text-white">document_scanner</span>
+                    </button>
+                    <p class="text-[10px] font-bold uppercase tracking-[.3em] text-white/40">Presiona para Escanear</p>
+                </div>
+            `;
+        } else {
+            // Update existing UI elements
+            const scoreEl = document.getElementById('scavenger-score');
+            const objectivesList = document.getElementById('objectives-list');
+            const card = document.getElementById('current-objective-card');
+            const timerEl = document.getElementById('scavenger-timer');
+            const feedbackArea = document.getElementById('feedback-area');
+
+            if(scoreEl) scoreEl.innerText = this.scavengerState.score;
+            if(objectivesList) {
+                objectivesList.innerHTML = this.scavengerState.objectives.map(o => `
+                    <div class="size-8 rounded-lg ${o.found ? 'bg-green-500/30 border-green-500' : 'bg-surface-accent/50 border-white/10'} border flex items-center justify-center text-lg">
+                        ${o.found ? '✅' : o.icon}
+                    </div>
+                `).join('');
+            }
+            if(card) {
+                card.innerHTML = `
+                    <div class="flex items-center justify-between animate-in slide-in-from-right duration-300">
                         <div>
                             <p class="text-primary text-[10px] font-bold uppercase tracking-widest mb-1">Objetivo ${this.scavengerState.currentIndex + 1}/${total}</p>
                             <h2 class="text-xl font-bold">${current.question}</h2>
@@ -450,50 +496,37 @@ const app = {
                         </div>
                         <span class="text-4xl">${current.icon}</span>
                     </div>
-                </div>
-
-                <div class="flex-1 flex items-center justify-center">
-                    <div id="scan-area" class="size-56 border-2 border-primary/40 rounded-3xl relative flex items-center justify-center transition-all duration-300">
-                        <span class="material-symbols-outlined text-4xl text-white/30 animate-pulse">center_focus_weak</span>
-                    </div>
-                </div>
-
-                <div id="feedback-area" class="h-16 flex items-center justify-center"></div>
-            </div>
-        `;
-
-        this.dom.gameFooter.innerHTML = `
-            <div class="flex flex-col items-center gap-3 w-full">
-                <button id="btn-scan" class="size-20 rounded-full bg-primary border-[6px] border-white/10 shadow-2xl flex items-center justify-center active:scale-95 transition-all group">
-                    <span class="material-symbols-outlined text-3xl text-white">document_scanner</span>
-                </button>
-                <p class="text-[10px] font-bold uppercase tracking-[.3em] text-white/40">Presiona para Escanear</p>
-            </div>
-        `;
+                `;
+            }
+            if(feedbackArea) feedbackArea.innerHTML = '';
+        }
     },
 
-    setupScavengerGame() {
-        // Scan button
-        document.getElementById('btn-scan').addEventListener('click', () => this.performScan());
-        
-        // Start Camera
-        this.startCamera();
+    setupScavengerGame(initial = false) {
+        if (initial) {
+            // Scan button
+            const btnScan = document.getElementById('btn-scan');
+            if(btnScan) btnScan.addEventListener('click', () => this.performScan());
+            
+            // Start Camera
+            this.startCamera();
 
-        // Timer
-        this.scavengerTimer = setInterval(() => {
-            this.scavengerState.timeLeft--;
-            const timerEl = document.getElementById('scavenger-timer');
-            if (timerEl) {
-                timerEl.textContent = this.scavengerState.timeLeft;
-                if (this.scavengerState.timeLeft <= 10) {
-                    timerEl.classList.add('text-red-400', 'animate-pulse');
+            // Timer
+            this.scavengerTimer = setInterval(() => {
+                this.scavengerState.timeLeft--;
+                const timerEl = document.getElementById('scavenger-timer');
+                if (timerEl) {
+                    timerEl.textContent = this.scavengerState.timeLeft;
+                    if (this.scavengerState.timeLeft <= 10) {
+                        timerEl.classList.add('text-red-400', 'animate-pulse');
+                    }
                 }
-            }
-            if (this.scavengerState.timeLeft <= 0) {
-                clearInterval(this.scavengerTimer);
-                this.finishScavengerGame();
-            }
-        }, 1000);
+                if (this.scavengerState.timeLeft <= 0) {
+                    clearInterval(this.scavengerTimer);
+                    this.finishScavengerGame();
+                }
+            }, 1000);
+        }
     },
 
     async startCamera() {
@@ -613,8 +646,8 @@ const app = {
                     // Find next unfound objective
                     this.scavengerState.currentIndex = this.scavengerState.objectives.findIndex(o => !o.found);
                     this.scavengerState.isScanning = false;
-                    this.renderScavengerUI();
-                    this.setupScavengerGame();
+                    this.renderScavengerUI(); 
+                    // No need to call setupScavengerGame() as events are stable and camera persists
                 }
             }, 2000);
         } else {

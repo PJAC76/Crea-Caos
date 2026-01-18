@@ -463,13 +463,13 @@ const app = {
             `;
 
             this.dom.gameFooter.innerHTML = `
-                <div class="flex flex-col items-center gap-3 w-full">
-                    <button id="btn-scan" class="size-20 rounded-full bg-primary border-[6px] border-white/10 shadow-2xl flex items-center justify-center active:scale-95 transition-all group z-50">
-                        <span class="material-symbols-outlined text-3xl text-white">document_scanner</span>
-                    </button>
-                    <p class="text-[10px] font-bold uppercase tracking-[.3em] text-white/40">Presiona para Escanear</p>
-                </div>
-            `;
+            <div class="flex flex-col items-center gap-3 w-full pointer-events-auto relative z-50">
+                <button id="btn-scan" class="size-20 rounded-full bg-primary border-[6px] border-white/10 shadow-2xl flex items-center justify-center active:scale-95 transition-all group cursor-pointer touch-manipulation">
+                    <span class="material-symbols-outlined text-3xl text-white">document_scanner</span>
+                </button>
+                <p class="text-[10px] font-bold uppercase tracking-[.3em] text-white/40">Presiona para Escanear</p>
+            </div>
+        `;
         } else {
             // Update existing UI elements
             const scoreEl = document.getElementById('scavenger-score');
@@ -504,9 +504,20 @@ const app = {
 
     setupScavengerGame(initial = false) {
         if (initial) {
-            // Scan button
+            // Scan button interaction
             const btnScan = document.getElementById('btn-scan');
-            if(btnScan) btnScan.addEventListener('click', () => this.performScan());
+            if(btnScan) {
+                const triggerScan = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation(); // Stop event bubbling
+                    console.log('Botón de escaneo presionado'); 
+                    this.performScan();
+                };
+
+                // Add both touch and click events to be safe on mobile
+                btnScan.addEventListener('touchstart', triggerScan, { passive: false });
+                btnScan.addEventListener('click', triggerScan);
+            }
             
             // Start Camera
             this.startCamera();

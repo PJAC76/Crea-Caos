@@ -201,15 +201,15 @@
             </header>
 
             <main class="flex-1 space-y-4 overflow-y-auto pb-32 px-6">
-                <!-- Game Card: Contraption -->
-                <button onclick="app.selectMinigame('contraption')"
+                <!-- Game Card: Charades -->
+                <button onclick="app.selectMinigame('charades')"
                     class="w-full bg-surface-dark border border-white/10 rounded-2xl p-4 flex items-center gap-4 active:scale-95 transition-all text-left group">
                     <div
                         class="size-20 rounded-xl bg-gradient-to-br from-blue-500/20 to-primary/20 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                        ⚙️</div>
+                        🎭</div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white">Contraption Craft Off</h3>
-                        <p class="text-white/40 text-xs">Construye máquinas locas en equipo.</p>
+                        <h3 class="font-bold text-lg text-white">Charades Cam</h3>
+                        <p class="text-white/40 text-xs">Mímica rápida por equipos con rachas.</p>
                     </div>
                     <span class="material-symbols-outlined text-primary">play_arrow</span>
                 </button>
@@ -227,15 +227,15 @@
                     <span class="material-symbols-outlined text-primary">play_arrow</span>
                 </button>
 
-                <!-- Game Card: Doodle -->
-                <button onclick="app.selectMinigame('doodle')"
+                <!-- Game Card: Spot -->
+                <button onclick="app.selectMinigame('spot')"
                     class="w-full bg-surface-dark border border-white/10 rounded-2xl p-4 flex items-center gap-4 active:scale-95 transition-all text-left group">
                     <div
                         class="size-20 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">
-                        🎨</div>
+                        🔍</div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white">Doodle-Duelo</h3>
-                        <p class="text-white/40 text-xs">¡Dibuja y adivina el caos!</p>
+                        <h3 class="font-bold text-lg text-white">Spot the Difference Live</h3>
+                        <p class="text-white/40 text-xs">Encuentra 5 diferencias antes del tiempo.</p>
                     </div>
                     <span class="material-symbols-outlined text-primary">play_arrow</span>
                 </button>
@@ -288,6 +288,10 @@
                             <span class="font-bold">Tú (Host)</span>
                         </div>
                         <span class="text-primary font-black">2,450 pts</span>
+                    </div>
+                    <div class="bg-surface-dark/40 rounded-2xl p-4 border border-white/10">
+                        <p class="text-[10px] font-bold tracking-widest uppercase text-primary mb-3">Historial Local (Top 5)</p>
+                        <div id="match-history" class="space-y-2"></div>
                     </div>
                 </div>
             </main>

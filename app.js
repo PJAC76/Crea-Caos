@@ -83,7 +83,29 @@ const app = {
     },
 
     getCurrentMatchScore() {
-        return (this.charadesState?.score || 0) + (this.scavengerState?.score || 0) + (this.spotState?.score || 0);
+        const playedMinigames = this.currentMatchProgress?.playedMinigames || {};
+        let total = 0;
+
+        if (playedMinigames.charades) total += this.charadesState?.score || 0;
+        if (playedMinigames.scavenger) total += this.scavengerState?.score || 0;
+        if (playedMinigames.spot) total += this.spotState?.score || 0;
+
+        return total;
+    },
+
+    resetCurrentMatchProgress() {
+        this.currentMatchProgress = {
+            isActive: true,
+            playedMinigames: {
+                charades: false,
+                scavenger: false,
+                spot: false
+            }
+        };
+
+        this.charadesState = null;
+        this.scavengerState = null;
+        this.spotState = null;
     },
 
     loadMatchHistory() {
@@ -254,11 +276,15 @@ const app = {
 
     startGame() {
         console.log('Transitioning to selection...');
+        this.resetCurrentMatchProgress();
         this.showScreen('gameSelection');
     },
 
     selectMinigame(minigame) {
         console.log(`Minigame selected: ${minigame}`);
+        if (!this.currentMatchProgress?.isActive) {
+            this.resetCurrentMatchProgress();
+        }
         this.trackEvent('minigame_selected', { minigame });
         this.state.currentMinigame = minigame;
         this.showScreen('game');
@@ -278,6 +304,10 @@ const app = {
         // Reset footer classes to default (relative/static)
         this.dom.gameFooter.className = 'w-full z-10 bg-surface-dark border-t border-white/5';
         this.dom.gameContent.className = 'flex-1 relative flex flex-col items-center p-6'; // Reset content classes
+
+        if (this.currentMatchProgress?.playedMinigames?.hasOwnProperty(minigame)) {
+            this.currentMatchProgress.playedMinigames[minigame] = true;
+        }
 
         if (minigame === 'charades') {
             this.dom.gameContent.classList.add('overflow-y-auto', 'pb-40');
@@ -1189,6 +1219,9 @@ const app = {
         this.clearAllGameTimers();
         const history = this.saveMatchResult();
         this.trackEvent('match_finished', { score: this.getCurrentMatchScore() });
+        if (this.currentMatchProgress) {
+            this.currentMatchProgress.isActive = false;
+        }
         this.showScreen('leaderboard');
         this.renderMatchHistory(history);
     },

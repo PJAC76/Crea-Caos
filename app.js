@@ -15,6 +15,7 @@ const app = {
             largeText: false
         },
         matchHistoryKey: 'creaCaosMatchHistory',
+        matchInProgress: false,
         playedMinigames: {
             charades: false,
             scavenger: false,
@@ -85,6 +86,19 @@ const app = {
             clearInterval(this.doodleTimer);
             this.doodleTimer = null;
         }
+    },
+
+    resetCurrentMatchState() {
+        this.clearAllGameTimers();
+        this.charadesState = null;
+        this.scavengerState = null;
+        this.spotState = null;
+        this.state.currentMinigame = null;
+        this.state.playedMinigames = {
+            charades: false,
+            scavenger: false,
+            spot: false
+        };
     },
 
     getCurrentMatchScore() {
@@ -263,21 +277,17 @@ const app = {
     startGame() {
         console.log('Transitioning to selection...');
         // New match: clear any stale scores/state from previous runs
-        this.clearAllGameTimers();
-        this.charadesState = null;
-        this.scavengerState = null;
-        this.spotState = null;
-        this.state.currentMinigame = null;
-        this.state.playedMinigames = {
-            charades: false,
-            scavenger: false,
-            spot: false
-        };
+        this.resetCurrentMatchState();
+        this.state.matchInProgress = true;
         this.showScreen('gameSelection');
     },
 
     selectMinigame(minigame) {
         console.log(`Minigame selected: ${minigame}`);
+        if (!this.state.matchInProgress) {
+            this.resetCurrentMatchState();
+            this.state.matchInProgress = true;
+        }
         this.trackEvent('minigame_selected', { minigame });
         this.state.currentMinigame = minigame;
         this.showScreen('game');
@@ -1211,6 +1221,7 @@ const app = {
         this.clearAllGameTimers();
         const history = this.saveMatchResult();
         this.trackEvent('match_finished', { score: this.getCurrentMatchScore() });
+        this.state.matchInProgress = false;
         this.showScreen('leaderboard');
         this.renderMatchHistory(history);
     },

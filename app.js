@@ -403,13 +403,33 @@ const app = {
     },
 
     renderSpotGame() {
+        const differences = [
+            { id: 'lamp', x: 22, y: 24 },
+            { id: 'plant', x: 75, y: 34 },
+            { id: 'clock', x: 48, y: 18 },
+            { id: 'cat', x: 30, y: 72 },
+            { id: 'book', x: 68, y: 76 }
+        ];
+
         this.spotState = {
             score: 0,
             foundDifferences: 0,
             mistakes: 0,
-            totalDifferences: 5,
-            timeLeft: 60
+            totalDifferences: differences.length,
+            timeLeft: 60,
+            differences,
+            found: new Set()
         };
+
+        const renderHotspots = (side) => differences.map(diff => `
+            <button
+                class="spot-hit absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-yellow-300/70 bg-yellow-300/20 transition-all"
+                style="left:${diff.x}%; top:${diff.y}%;"
+                data-diff-id="${diff.id}"
+                data-side="${side}"
+                aria-label="Diferencia ${diff.id} (${side})"
+            ></button>
+        `).join('');
 
         this.dom.gameContent.innerHTML = `
             <div class="w-full max-w-md animate-in fade-in">
@@ -419,15 +439,26 @@ const app = {
                     <div class="bg-surface-accent/70 rounded-xl p-2 border border-white/10"><p class="text-[10px] text-white/50 uppercase">Score</p><p id="spot-score" class="text-xl font-black">0</p></div>
                 </div>
                 <div class="bg-surface-dark/60 border border-white/10 rounded-2xl p-4 mb-4">
-                    <p class="text-sm text-white/70 mb-3">Encuentra 5 diferencias. Simulación MVP:</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
-                        <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
-                        <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
-                        <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
-                        <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
-                        <button id="spot-miss" class="h-14 rounded-xl bg-red-500/20 border border-red-400/40">❌ Tap incorrecto</button>
+                    <p class="text-sm text-white/70 mb-3">Encuentra las 5 diferencias reales tocando sobre las imágenes:</p>
+                    <div class="grid grid-cols-2 gap-2" id="spot-board-wrapper">
+                        <div class="spot-board relative aspect-square rounded-xl border border-white/20 bg-gradient-to-br from-sky-500/30 to-indigo-500/20 overflow-hidden" data-side="left">
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div class="absolute top-[14%] left-[18%] w-10 h-10 rounded-full bg-yellow-300/70"></div>
+                                <div class="absolute top-[48%] left-[58%] w-16 h-10 rounded-lg bg-rose-300/60"></div>
+                                <div class="absolute bottom-[12%] left-[16%] w-8 h-6 rounded-lg bg-emerald-300/70"></div>
+                            </div>
+                            ${renderHotspots('left')}
+                        </div>
+                        <div class="spot-board relative aspect-square rounded-xl border border-white/20 bg-gradient-to-br from-sky-500/30 to-indigo-500/20 overflow-hidden" data-side="right">
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div class="absolute top-[14%] left-[18%] w-10 h-10 rounded-full bg-yellow-300/70"></div>
+                                <div class="absolute top-[48%] left-[58%] w-16 h-10 rounded-lg bg-rose-300/60"></div>
+                                <div class="absolute bottom-[12%] left-[16%] w-8 h-6 rounded-lg bg-emerald-300/70"></div>
+                            </div>
+                            ${renderHotspots('right')}
+                        </div>
                     </div>
+                    <p class="text-[11px] text-white/50 mt-2">Toques fuera de una diferencia restan puntos.</p>
                 </div>
                 <div id="spot-feedback" class="h-10 flex items-center justify-center text-sm text-white/60"></div>
             </div>
@@ -444,15 +475,30 @@ const app = {
         const foundEl = document.getElementById('spot-found');
         const scoreEl = document.getElementById('spot-score');
         const feedbackEl = document.getElementById('spot-feedback');
+        const boardWrapper = document.getElementById('spot-board-wrapper');
+
+        const handleMiss = () => {
+            this.spotState.mistakes++;
+            this.spotState.score = Math.max(0, this.spotState.score - 15);
+            scoreEl.textContent = this.spotState.score;
+            feedbackEl.innerHTML = '<span class="text-red-400 font-bold">No está ahí (-15)</span>';
+        };
 
         document.querySelectorAll('.spot-hit').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.disabled) return;
-                btn.disabled = true;
-                btn.classList.add('opacity-40');
+            btn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const diffId = btn.dataset.diffId;
+                if (this.spotState.found.has(diffId)) return;
+
+                this.spotState.found.add(diffId);
+                document.querySelectorAll(`.spot-hit[data-diff-id="${diffId}"]`).forEach(node => {
+                    node.disabled = true;
+                    node.classList.add('opacity-40');
+                });
+
                 this.spotState.foundDifferences++;
                 this.spotState.score += 60;
-                foundEl.textContent = `${this.spotState.foundDifferences}/5`;
+                foundEl.textContent = `${this.spotState.foundDifferences}/${this.spotState.totalDifferences}`;
                 scoreEl.textContent = this.spotState.score;
                 feedbackEl.innerHTML = '<span class="text-green-400 font-bold">¡Bien visto! +60</span>';
                 if (this.spotState.foundDifferences >= this.spotState.totalDifferences) {
@@ -463,11 +509,10 @@ const app = {
             });
         });
 
-        document.getElementById('spot-miss').addEventListener('click', () => {
-            this.spotState.mistakes++;
-            this.spotState.score = Math.max(0, this.spotState.score - 15);
-            scoreEl.textContent = this.spotState.score;
-            feedbackEl.innerHTML = '<span class="text-red-400 font-bold">No está ahí (-15)</span>';
+        boardWrapper.addEventListener('click', (event) => {
+            if (!event.target.closest('.spot-hit')) {
+                handleMiss();
+            }
         });
 
         document.getElementById('btn-finish-spot').addEventListener('click', () => this.nextMinigame());

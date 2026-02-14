@@ -419,7 +419,7 @@ const app = {
                     <div class="bg-surface-accent/70 rounded-xl p-2 border border-white/10"><p class="text-[10px] text-white/50 uppercase">Score</p><p id="spot-score" class="text-xl font-black">0</p></div>
                 </div>
                 <div class="bg-surface-dark/60 border border-white/10 rounded-2xl p-4 mb-4">
-                    <p class="text-sm text-white/70 mb-3">Encuentra 5 diferencias. Simulación MVP:</p>
+                    <p class="text-sm text-white/70 mb-3">Encuentra 5 diferencias en esta ronda jugable. Cada acierto suma y cada fallo resta.</p>
                     <div class="grid grid-cols-2 gap-2">
                         <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>
                         <button class="spot-hit h-14 rounded-xl bg-green-500/20 border border-green-400/40">✅ Diferencia</button>

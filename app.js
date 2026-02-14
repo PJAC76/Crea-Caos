@@ -14,7 +14,12 @@ const app = {
             sfx: 50,
             largeText: false
         },
-        matchHistoryKey: 'creaCaosMatchHistory'
+        matchHistoryKey: 'creaCaosMatchHistory',
+        playedMinigames: {
+            charades: false,
+            scavenger: false,
+            spot: false
+        }
     },
 
     init() {
@@ -83,7 +88,10 @@ const app = {
     },
 
     getCurrentMatchScore() {
-        return (this.charadesState?.score || 0) + (this.scavengerState?.score || 0) + (this.spotState?.score || 0);
+        const played = this.state.playedMinigames || {};
+        return (played.charades ? (this.charadesState?.score || 0) : 0)
+            + (played.scavenger ? (this.scavengerState?.score || 0) : 0)
+            + (played.spot ? (this.spotState?.score || 0) : 0);
     },
 
     loadMatchHistory() {
@@ -254,6 +262,17 @@ const app = {
 
     startGame() {
         console.log('Transitioning to selection...');
+        // New match: clear any stale scores/state from previous runs
+        this.clearAllGameTimers();
+        this.charadesState = null;
+        this.scavengerState = null;
+        this.spotState = null;
+        this.state.currentMinigame = null;
+        this.state.playedMinigames = {
+            charades: false,
+            scavenger: false,
+            spot: false
+        };
         this.showScreen('gameSelection');
     },
 
@@ -270,6 +289,9 @@ const app = {
         // Clear any existing timers from previous games
         this.clearAllGameTimers();
         this.trackEvent('minigame_init', { minigame });
+        if (this.state.playedMinigames && Object.prototype.hasOwnProperty.call(this.state.playedMinigames, minigame)) {
+            this.state.playedMinigames[minigame] = true;
+        }
 
         this.dom.gameContent.innerHTML = '';
         this.dom.gameFooter.classList.remove('hidden');

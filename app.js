@@ -254,6 +254,12 @@ const app = {
 
     startGame() {
         console.log('Transitioning to selection...');
+        // New match: clear any stale scores/state from previous runs
+        this.clearAllGameTimers();
+        this.charadesState = null;
+        this.scavengerState = null;
+        this.spotState = null;
+        this.state.currentMinigame = null;
         this.showScreen('gameSelection');
     },
 

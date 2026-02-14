@@ -82,6 +82,12 @@ const app = {
         }
     },
 
+    resetMatchState() {
+        this.charadesState = null;
+        this.scavengerState = null;
+        this.spotState = null;
+    },
+
     getCurrentMatchScore() {
         return (this.charadesState?.score || 0) + (this.scavengerState?.score || 0) + (this.spotState?.score || 0);
     },
@@ -260,6 +266,7 @@ const app = {
     selectMinigame(minigame) {
         console.log(`Minigame selected: ${minigame}`);
         this.trackEvent('minigame_selected', { minigame });
+        this.resetMatchState();
         this.state.currentMinigame = minigame;
         this.showScreen('game');
         this.initMinigame(minigame);
